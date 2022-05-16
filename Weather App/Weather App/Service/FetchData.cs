@@ -8,13 +8,11 @@ namespace Weather_App.Service
 {
     public class FetchData
     {
-        private string location;
         private double latitude;
         private double longitude;
 
-        public FetchData(string location, double latitude, double longitude)
+        public FetchData( double latitude, double longitude)
         {
-            this.location = location;
             this.latitude = latitude;
             this.longitude = longitude;
         }
@@ -26,7 +24,8 @@ namespace Weather_App.Service
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://api.openweathermap.org/data/2.5/onecall?lat=23.8962&lon=29.4486&appid=0d057eb24363f49cb920c198940ec466")
+                RequestUri = new Uri("https://api.openweathermap.org/data/2.5/onecall?" +
+                $"lat={latitude}&lon={longitude}&appid=0d057eb24363f49cb920c198940ec466")
                 //Headers =
                 //{
                 //    { "X-RapidAPI-Host", "community-open-weather-map.p.rapidapi.com" },

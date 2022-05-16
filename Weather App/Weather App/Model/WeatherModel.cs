@@ -99,7 +99,7 @@ namespace Weather_App
         public Main Main { get; set; }
 
         [JsonProperty("description")]
-        public Description Description { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty("icon")]
         public string Icon { get; set; }

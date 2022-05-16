@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:ctrl="clr-namespace:Weather_App.Controls"
              x:Class="Weather_App.MainPage"
              
              >
@@ -87,10 +87,8 @@
                 </Frame>
             </StackLayout>
         </Frame>
-
-
-        <SearchBar  Margin="5" Text="{Binding SearchInput}"/>
-        <RefreshView>
+        <ctrl:SearchBarControl Text="{Binding SearchInput}" SearchCommand="{Binding BtnSearch}"/>
+        
             <CollectionView EmptyView="No Data Found" 
                             SelectionMode="None" 
                             ItemsSource="{Binding WeatherList}">
@@ -112,7 +110,7 @@
                                     <Label Text="{Binding Day}" 
                                            TextColor="{StaticResource Primary}" 
                                            FontSize="12" VerticalOptions="Center" Margin="20,0"/>
-                                    <Label Text="{Binding Weather[0].Main}" 
+                                    <Label Text="{Binding Weather[0].Description}" 
                                            Grid.Column="1"
                                            TextColor="{StaticResource Primary}" 
                                            FontSize="12" VerticalOptions="Center" Margin="20,0"/>
@@ -136,7 +134,7 @@
                 </CollectionView.ItemTemplate>
                
             </CollectionView>
-        </RefreshView>
+   
     </StackLayout>
 
 </ContentPage>
