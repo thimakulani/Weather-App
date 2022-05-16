@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Weather_App.Service;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Weather_App.ViewModel
@@ -15,7 +16,6 @@ namespace Weather_App.ViewModel
     public class MainViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private WeatherModel weather;
 
 
         private ObservableCollection<Daily> weatherList = new ObservableCollection<Daily>();
@@ -88,24 +88,22 @@ namespace Weather_App.ViewModel
 
         public async void LoadData(double latitude, double longitude)
         {
+            
             FetchData data = new FetchData(latitude, longitude);
-            var json = await data.WeatherData2();
+            var json = await data.GetWeatherData();
             Console.WriteLine(json);
 
             if(json != null)
             {
-                var output = WeatherModel.FromJson(json);
-
-                Temperature = 19;
+                var output = Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherModel>(json);
+                Temperature = (long)output.Current.FeelsLike;
                 Humidity = $"{output.Current.Humidity}";
                 Cloudness = $"{output.Current.Clouds}";
                 Pressure = $"{output.Current.Pressure}";
                 Wind = $"{output.Current.WindSpeed}";
                 Icon = $"https://openweathermap.org/img/wn/{output.Current.Weather[0].Icon}@4x.png";
                 Description = output.Current.Weather[0].Description;
-                
-               
-
+                weatherList.Clear();
                 foreach (var item in output.Daily)
                 {
                     DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -123,14 +121,14 @@ namespace Weather_App.ViewModel
         private async Task CurrentLocation()
         {
             var location = await Xamarin.Essentials.Geolocation.GetLastKnownLocationAsync();
-
             var result = await Xamarin.Essentials.Geocoding.GetPlacemarksAsync(location);
             var addr = result.FirstOrDefault();
-            Location = $"{addr.SubLocality}, {addr.CountryCode}";
-            SearchInput = addr.SubLocality;
+            
             if(addr !=null)
             {
-                LoadData(addr.Location.Longitude, addr.Location.Longitude);
+                Location = $"{addr.SubLocality}, {addr.CountryCode}";
+                SearchInput = addr.SubLocality;
+                LoadData(addr.Location.Latitude, addr.Location.Longitude);
             }
         }
         private async void SearchLocation(object obj)
@@ -142,6 +140,7 @@ namespace Weather_App.ViewModel
                 var place = results.FirstOrDefault();
                 if(place != null)
                 {
+                    Location = searchInput;
                     LoadData(place.Latitude, place.Longitude);
                 }
             }
