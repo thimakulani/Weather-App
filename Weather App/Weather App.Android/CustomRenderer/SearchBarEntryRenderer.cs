@@ -31,16 +31,17 @@ namespace Weather_App.Droid.CustomRenderer
                 SearchView searchView = (base.Control as SearchView);
                 searchView.SetInputType(InputTypes.ClassText | InputTypes.TextVariationNormal);
 
-                // Access search textview within control
                 int textViewId = searchView.Context.Resources.GetIdentifier("android:id/search_src_text", null, null);
+                
                 EditText textView = (searchView.FindViewById(textViewId) as EditText);
 
-                // Set custom colors
                 textView.SetBackgroundColor(Android.Graphics.Color.Rgb(225, 225, 225));
                 textView.SetTextColor(Android.Graphics.Color.Rgb(32, 32, 32));
                 textView.SetHintTextColor(Android.Graphics.Color.Rgb(128, 128, 128));
-
+                textView.Hint = "Search a City";
                 
+
+
             }
         }
     }

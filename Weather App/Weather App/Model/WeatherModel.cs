@@ -36,7 +36,9 @@ namespace Weather_App
         public double WindGust { get; set; }
         public List<Weather> Weather { get; set; }
         public long? Pop { get; set; }
-        
+        public string Time { get; set; }
+
+
     }
 
     public partial class Weather

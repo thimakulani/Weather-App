@@ -8,6 +8,9 @@
 
         <Frame BackgroundColor="{StaticResource Primary}" Padding="15" CornerRadius="0">
             <StackLayout>
+                <ctrl:SearchBarControl Text="{Binding SearchInput}" 
+                                       
+                                       SearchCommand="{Binding BtnSearch}"/>
                 <Label Text="{Binding Location}" 
                        HorizontalTextAlignment="Start" 
                        TextType="Text" 
@@ -15,22 +18,41 @@
                        TextColor="Wheat" 
                        FontSize="15"/>
                 <StackLayout>
-                    <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
-                        <Image
+
+
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="{Binding Sunrise}" 
+                           TextColor="Wheat" 
+                           FontSize="16"
+                           VerticalOptions="Center"
+                               HorizontalOptions="Start"
+                           />
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
+                            <Image
                             Source="{Binding Icon}"
                             WidthRequest="50"
                             HeightRequest="50"
                             HorizontalOptions="Center"
                         />
-                        <Label Text="{Binding Temperature}" 
+                            <Label  
+                               TextColor="Wheat" 
+                               FontSize="26"
+                               VerticalOptions="CenterAndExpand"
+                               >
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Temperature}" />
+                                        <Span Text="⁰C" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            
+                        </StackLayout>
+                        <Label Text="{Binding Sunset}" 
                            TextColor="Wheat" 
-                           FontSize="26"
-                           VerticalOptions="CenterAndExpand"
-                           />
-                        <Label Text="⁰C" 
-                           TextColor="Wheat" 
-                           FontSize="26"
-                           VerticalOptions="CenterAndExpand"
+                           FontSize="16"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Start"
                            />
                     </StackLayout>
                     <Label Text="{Binding Description}" 
@@ -56,28 +78,56 @@
                             <StackLayout Orientation="Vertical" Spacing="10" HorizontalOptions="CenterAndExpand">
                                 <Image Source="humidity" HeightRequest="25" HorizontalOptions="Center"/>
                                 <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
-                                    <Label Text="{Binding Humidity}" TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                    <Label TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Humidity}" />
+                                                <Span Text="%" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <Label Text="Humidity" TextColor="Wheat" FontSize="11" HorizontalOptions="Center"/>
                                 </StackLayout>
                             </StackLayout>
                             <StackLayout Grid.Column="1" Orientation="Vertical" Spacing="10" HorizontalOptions="CenterAndExpand">
                                 <Image Source="windy" HeightRequest="25" HorizontalOptions="Center"/>
                                 <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
-                                    <Label Text="{Binding Wind}" TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                    <Label  TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Wind}" />
+                                                <Span Text="m/h" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <Label Text="Wind" TextColor="Wheat" FontSize="11" HorizontalOptions="Center"/>
                                 </StackLayout>
                             </StackLayout>
                             <StackLayout Grid.Column="2" Orientation="Vertical" Spacing="10" HorizontalOptions="CenterAndExpand">
                                 <Image Source="pressure" HeightRequest="25" HorizontalOptions="Center"/>
                                 <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
-                                    <Label Text="{Binding Pressure}" TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                    <Label TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Pressure}" />
+                                                <Span Text="hPa" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <Label Text="Pressure" TextColor="Wheat" FontSize="11" HorizontalOptions="Center"/>
                                 </StackLayout>
                             </StackLayout>
                             <StackLayout Grid.Column="3" Orientation="Vertical" Spacing="10" HorizontalOptions="CenterAndExpand">
                                 <Image Source="cloudy" HeightRequest="25" HorizontalOptions="Center"/>
                                 <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
-                                    <Label Text="{Binding Cloudness}" TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                    <Label TextColor="Black" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Cloudness}" />
+                                                <Span Text="%" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <Label Text="Cloudy" TextColor="Wheat" FontSize="11" HorizontalOptions="Center"/>
                                 </StackLayout>
                             </StackLayout>
@@ -89,12 +139,11 @@
         </Frame>
         <StackLayout>
             <CarouselView EmptyView="No Data" 
-                          HeightRequest="250" 
-                          x:Name="ServiceCategory" 
+                          HeightRequest="80" 
                           Loop="False"
                           PeekAreaInsets="130"
+                          ItemsSource="{Binding Hourly}"
                           ItemsUpdatingScrollMode="KeepLastItemInView"
-                          BindingContext="{Binding Hourly}"
                               
                           >
                 <CarouselView.ItemsLayout>
@@ -107,110 +156,94 @@
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout>
-                            <Frame HeightRequest="300" WidthRequest="250" 
+                            <Frame HeightRequest="75" 
+                                   WidthRequest="65"
                                     Padding="0"
-                                    HasShadow="True" Margin="3" CornerRadius="7"
-                                    HorizontalOptions="CenterAndExpand">
-                                <Frame.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="CadetBlue" Offset="0.1"/>
-                                        <GradientStop Color="CadetBlue" Offset="1.0"/>
-
-                                    </LinearGradientBrush>
-                                </Frame.Background>
-                                <Grid>
-                                    <Grid>
-                                        <StackLayout>
-                                            
-                                        </StackLayout>
-                                        <Label Text="{Binding Name}" 
-                                                FontSize="12"
-                                                TextColor="White"
-                                                FontAttributes="Bold" Margin="15,5"
-                                                VerticalOptions="EndAndExpand"/>
-
-                                    </Grid>
-                                </Grid>
-                            </Frame>
-                        </StackLayout>
-                    </DataTemplate>
-                </CarouselView.ItemTemplate>
-                <CarouselView.EmptyViewTemplate>
-                    <DataTemplate>
-                        <StackLayout>
-                            <Frame HeightRequest="50" WidthRequest="50" 
-                                    Padding="0"
-                                    HasShadow="True" Margin="3" CornerRadius="7"
-                                    HorizontalOptions="CenterAndExpand">
+                                    HasShadow="True" Margin="1" CornerRadius="7"
+                                    >
                                 <Frame.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                         <GradientStop Color="CadetBlue" Offset="0.1"/>
                                         <GradientStop Color="CadetBlue" Offset="1.0"/>
                                     </LinearGradientBrush>
                                 </Frame.Background>
-                                <StackLayout Grid.Column="3" Orientation="Vertical" Spacing="0" HorizontalOptions="CenterAndExpand">
-                                    <Image Source="cloudy" HeightRequest="25" HorizontalOptions="Center"/>
-                                    <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
-                                        <Label Text="%" TextColor="Black" FontSize="14" 
-                                               FontAttributes="Bold" HorizontalOptions="Center"/>
-                                        <Label Text="time" TextColor="Black" FontSize="14" 
+                                <StackLayout Grid.Column="3" Orientation="Vertical" Spacing="0" >
+                                    <Image Source="{Binding Weather[0].IconUrl}" HeightRequest="25" HorizontalOptions="Center"/>
+                                    <StackLayout Spacing="0" HorizontalOptions="CenterAndExpand">
+
+                                        <Label  TextColor="Black" FontSize="14" 
+                                               FontAttributes="Bold" HorizontalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Temp}" />
+                                                    <Span Text="⁰C" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Text="{Binding Time}" TextColor="Black" FontSize="14" 
                                                FontAttributes="Bold" HorizontalOptions="Center"/>
                                     </StackLayout>
                                 </StackLayout>
                             </Frame>
                         </StackLayout>
                     </DataTemplate>
-                </CarouselView.EmptyViewTemplate>
+                </CarouselView.ItemTemplate>
+
             </CarouselView>
         </StackLayout>
-        <ctrl:SearchBarControl Text="{Binding SearchInput}" SearchCommand="{Binding BtnSearch}"/>
         
-            <CollectionView EmptyView="No Data Found" 
+
+        <CollectionView EmptyView="No Data Found" 
                             SelectionMode="None" 
                             ItemsSource="{Binding Daily}">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Margin="5">
-                            <Frame BackgroundColor="White" BorderColor="#F0F0F0" Padding="5" Margin="0,0,0,5" HasShadow="False">
-                                <Grid HeightRequest="50" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Margin="5">
+                        <Frame BackgroundColor="White" BorderColor="#F0F0F0" Padding="5" Margin="0,0,0,5" HasShadow="False">
+                            <Grid HeightRequest="50" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                    <Label Text="{Binding Day}" 
+                                <Label Text="{Binding Day}" 
                                            TextColor="{StaticResource Primary}" 
                                            FontSize="12" VerticalOptions="Center" Margin="20,0"/>
-                                    <Label Text="{Binding Weather[0].Description}" 
+                                <Label Text="{Binding Weather[0].Description}" 
                                            Grid.Column="1"
                                            TextColor="{StaticResource Primary}" 
                                            FontSize="12" VerticalOptions="Center" Margin="20,0"/>
-                                    <Image Grid.Column="2" 
+                                <Image Grid.Column="2" 
                                            Source="{Binding Weather[0].IconUrl}"
                                            WidthRequest="38" HeightRequest="38" 
                                            HorizontalOptions="Center" 
                                            VerticalOptions="Center"/>
-                                    <StackLayout Grid.Column="3" Orientation="Horizontal" 
+                                <StackLayout Grid.Column="3" Orientation="Horizontal" 
                                                  Margin="20,0" HorizontalOptions="End" VerticalOptions="Center">
-                                        <Label Text="{Binding Temp.Min}" TextColor="{StaticResource Primary}" 
+                                    <Label TextColor="{StaticResource Primary}" 
                                                FontSize="20" FontAttributes="Bold"
-                                               VerticalOptions="Center"/>
-                                        <Label Text="⁰C" TextColor="{StaticResource Primary}"
-                                               FontSize="15" VerticalOptions="Center"/>
-                                    </StackLayout>
-                                </Grid>
-                            </Frame>
-                        </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-               
-            </CollectionView>
-   
+                                               VerticalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Temp.Min}" />
+                                                <Span Text="⁰C" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </StackLayout>
+                            </Grid>
+                        </Frame>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
     </StackLayout>
 
 </ContentPage>

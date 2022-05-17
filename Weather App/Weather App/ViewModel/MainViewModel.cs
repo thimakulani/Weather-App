@@ -20,19 +20,23 @@ namespace Weather_App.ViewModel
         private ObservableCollection<Daily> daily = new ObservableCollection<Daily>();
         public ObservableCollection<Daily> Daily { get { return daily; } set { daily = value; } }
         private ObservableCollection<Current> hourly = new ObservableCollection<Current>();
-        private ObservableCollection<Current> Hourly { get { return hourly; } set { hourly = value; } }
-        private string temperature;
+        public ObservableCollection<Current> Hourly { get { return hourly; } set { hourly = value; } }
+        private long temperature;
         private string location;
         private string icon;
         private string description;
         private string searchInput;
-        private string pressure;
-        private string cloudness;
-        private string humidity;
-        private string wind;
+        private long pressure;
+        private long cloudness;
+        private long humidity;
+        private double wind;
+        private string sunrise;
+        private string sunset;
 
-        public string Pressure { get { return pressure; } set { pressure = value; PropertyChanged(this, new PropertyChangedEventArgs("Pressure")); } }
-        public string Cloudness {
+        public string Sunset { get { return sunset; } set { sunset = value; PropertyChanged(this, new PropertyChangedEventArgs("Sunset")); } }
+        public string Sunrise { get { return sunrise; } set { sunrise = value; PropertyChanged(this, new PropertyChangedEventArgs("Sunrise")); } }
+        public long Pressure { get { return pressure; } set { pressure = value; PropertyChanged(this, new PropertyChangedEventArgs("Pressure")); } }
+        public long Cloudness {
             get
             {
                 return cloudness;
@@ -43,7 +47,7 @@ namespace Weather_App.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs("Cloudness"));
             }
         }
-        public string Humidity
+        public long Humidity
         {
             get
             {
@@ -55,7 +59,7 @@ namespace Weather_App.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs("Humidity"));
             }
         }
-        public string Wind
+        public double Wind
         {
             get
             {
@@ -71,7 +75,7 @@ namespace Weather_App.ViewModel
         public string Icon { get { return icon; }
             set { icon = value; PropertyChanged(this, new PropertyChangedEventArgs("Icon")); } }
         public string Location { get { return location; } set { location = value; PropertyChanged(this, new PropertyChangedEventArgs("Location")); } }
-        public string Temperature { get { return temperature; } set { temperature = value; PropertyChanged(this, new PropertyChangedEventArgs("Temperature")); } }
+        public long Temperature { get { return temperature; } set { temperature = value; PropertyChanged(this, new PropertyChangedEventArgs("Temperature")); } }
         public string Description { get { return description; } set { description = value; PropertyChanged(this, new PropertyChangedEventArgs("Description")); } }
         public string SearchInput { get { return searchInput; } set { searchInput = value; PropertyChanged(this, new PropertyChangedEventArgs("SearchInput")); } }
         
@@ -86,31 +90,35 @@ namespace Weather_App.ViewModel
             _ = CurrentLocation();
         }
 
-
+        //kalvin constant
         private const double kelvin = 273.15;
         public async void LoadData(double latitude, double longitude)
         {
             
             FetchData data = new FetchData(latitude, longitude);
             var json = await data.GetWeatherData();
-            Console.WriteLine(json);
-
             if(json != null)
             {
                 var output = Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherModel>(json);
-                Temperature = $"{(long)(output.Current.Temp - kelvin)}";
-                Humidity = $"{output.Current.Humidity}%";
-                Cloudness = $"{output.Current.Clouds}%";
-                Pressure = $"{output.Current.Pressure} hPa";
-                Wind = $"{output.Current.WindSpeed} m/h";
+                Temperature = ((long)(output.Current.Temp - kelvin));
+                Humidity = output.Current.Humidity;
+                Cloudness = output.Current.Clouds;
+                Pressure = output.Current.Pressure;
+                Wind = output.Current.WindSpeed;
                 Icon = $"https://openweathermap.org/img/wn/{output.Current.Weather[0].Icon}@4x.png";
-                
+
+                var dt_sunset = GetDateFromeTimeStamp((double)output.Current.Sunset);
+                var dt_sunrise = GetDateFromeTimeStamp((double)output.Current.Sunrise);
+                Sunset = $"Sunset: {dt_sunset:HH:mm tt}";
+                Sunrise = $"Sunrise: {dt_sunrise:HH:mm tt}";
+
                 Description = output.Current.Weather[0].Description;
+
+
                 daily.Clear();
                 foreach (var item in output.Daily)
                 {
-                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                    dateTime = dateTime.AddSeconds(item.Dt).ToLocalTime();
+                    var dateTime = GetDateFromeTimeStamp(item.Dt);
                     item.Day = dateTime.DayOfWeek;
                     if (DateTime.Now.Date != dateTime.Date)
                     {
@@ -122,14 +130,20 @@ namespace Weather_App.ViewModel
                 hourly.Clear();
                 foreach (var item in output.Hourly)
                 {
-                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                    dateTime = dateTime.AddSeconds(item.Dt).ToLocalTime();
-                    
+                    var dateTime = GetDateFromeTimeStamp(item.Dt);
+                    item.Time = $"{dateTime:HH:mm tt}";
+                    item.Temp = ((long)(item.Temp - kelvin));
                     hourly.Add(item);
-                    Console.WriteLine("weeee " + dateTime.Hour);
+                    Console.WriteLine("weeee " + dateTime.TimeOfDay);
                 }
             }
 
+        }
+        private DateTime GetDateFromeTimeStamp(double time_stamp)
+        {
+            DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dt = dt.AddSeconds(time_stamp).ToLocalTime();
+            return dt;
         }
         private async Task CurrentLocation()
         {
@@ -148,14 +162,41 @@ namespace Weather_App.ViewModel
         {
             if(searchInput != null)
             {
-
-                var results = await Xamarin.Essentials.Geocoding.GetLocationsAsync(SearchInput);
-                var place = results.FirstOrDefault();
-                if(place != null)
+                try
                 {
-                    Location = searchInput;
-                    LoadData(place.Latitude, place.Longitude);
+                    var results = await Geocoding.GetLocationsAsync(SearchInput);
+                    var place = results.FirstOrDefault();
+                    if (place != null)
+                    {
+                        Location = searchInput;
+                        LoadData(place.Latitude, place.Longitude);
+                    }
                 }
+                catch (FeatureNotSupportedException fnsEx)
+                {
+                    //not supported on device exception
+                    Console.WriteLine(fnsEx.Message);
+                    await Application.Current.MainPage.DisplayAlert("Error", "Something went wrong", "Cancel");
+                }
+                catch (FeatureNotEnabledException fneEx)
+                {
+                    // Handle not enabled on device exception
+                    await Application.Current.MainPage.DisplayAlert("Error", "Something went wrong", "Cancel");
+                    Console.WriteLine(fneEx.Message);
+                }
+                catch (PermissionException pEx)
+                {
+                    // Handle permission exception
+                    await Application.Current.MainPage.DisplayAlert("Error", "Something went wrong", "Cancel");
+                    Console.WriteLine(pEx.Message);
+                }
+                catch (Exception ex)
+                {
+                    // Unable to get location
+                    await Application.Current.MainPage.DisplayAlert("Error", "Something went wrong", "Cancel");
+                    Console.WriteLine(ex.Message);
+                }
+
             }
         }
 
