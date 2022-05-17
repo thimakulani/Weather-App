@@ -17,10 +17,11 @@ namespace Weather_App.ViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-
-        private ObservableCollection<Daily> weatherList = new ObservableCollection<Daily>();
-        public ObservableCollection<Daily> WeatherList { get { return weatherList; } set { weatherList = value; } }
-        private long temperature;
+        private ObservableCollection<Daily> daily = new ObservableCollection<Daily>();
+        public ObservableCollection<Daily> Daily { get { return daily; } set { daily = value; } }
+        private ObservableCollection<Current> hourly = new ObservableCollection<Current>();
+        private ObservableCollection<Current> Hourly { get { return hourly; } set { hourly = value; } }
+        private string temperature;
         private string location;
         private string icon;
         private string description;
@@ -70,7 +71,7 @@ namespace Weather_App.ViewModel
         public string Icon { get { return icon; }
             set { icon = value; PropertyChanged(this, new PropertyChangedEventArgs("Icon")); } }
         public string Location { get { return location; } set { location = value; PropertyChanged(this, new PropertyChangedEventArgs("Location")); } }
-        public long Temperature { get { return temperature; } set { temperature = value; PropertyChanged(this, new PropertyChangedEventArgs("Temperature")); } }
+        public string Temperature { get { return temperature; } set { temperature = value; PropertyChanged(this, new PropertyChangedEventArgs("Temperature")); } }
         public string Description { get { return description; } set { description = value; PropertyChanged(this, new PropertyChangedEventArgs("Description")); } }
         public string SearchInput { get { return searchInput; } set { searchInput = value; PropertyChanged(this, new PropertyChangedEventArgs("SearchInput")); } }
         
@@ -86,6 +87,7 @@ namespace Weather_App.ViewModel
         }
 
 
+        private const double kelvin = 273.15;
         public async void LoadData(double latitude, double longitude)
         {
             
@@ -96,14 +98,15 @@ namespace Weather_App.ViewModel
             if(json != null)
             {
                 var output = Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherModel>(json);
-                Temperature = (long)output.Current.FeelsLike;
-                Humidity = $"{output.Current.Humidity}";
-                Cloudness = $"{output.Current.Clouds}";
-                Pressure = $"{output.Current.Pressure}";
-                Wind = $"{output.Current.WindSpeed}";
+                Temperature = $"{(long)(output.Current.Temp - kelvin)}";
+                Humidity = $"{output.Current.Humidity}%";
+                Cloudness = $"{output.Current.Clouds}%";
+                Pressure = $"{output.Current.Pressure} hPa";
+                Wind = $"{output.Current.WindSpeed} m/h";
                 Icon = $"https://openweathermap.org/img/wn/{output.Current.Weather[0].Icon}@4x.png";
+                
                 Description = output.Current.Weather[0].Description;
-                weatherList.Clear();
+                daily.Clear();
                 foreach (var item in output.Daily)
                 {
                     DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -111,17 +114,27 @@ namespace Weather_App.ViewModel
                     item.Day = dateTime.DayOfWeek;
                     if (DateTime.Now.Date != dateTime.Date)
                     {
-                        item.Temp.Min = ((long)(item.Temp.Min - 273.15));
-                        weatherList.Add(item);
+                        item.Temp.Min = ((long)(item.Temp.Min - kelvin));
+                        daily.Add(item);
                     }
+                   
+                }
+                hourly.Clear();
+                foreach (var item in output.Hourly)
+                {
+                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                    dateTime = dateTime.AddSeconds(item.Dt).ToLocalTime();
+                    
+                    hourly.Add(item);
+                    Console.WriteLine("weeee " + dateTime.Hour);
                 }
             }
 
         }
         private async Task CurrentLocation()
         {
-            var location = await Xamarin.Essentials.Geolocation.GetLastKnownLocationAsync();
-            var result = await Xamarin.Essentials.Geocoding.GetPlacemarksAsync(location);
+            var location = await Geolocation.GetLastKnownLocationAsync();
+            var result = await Geocoding.GetPlacemarksAsync(location);
             var addr = result.FirstOrDefault();
             
             if(addr !=null)

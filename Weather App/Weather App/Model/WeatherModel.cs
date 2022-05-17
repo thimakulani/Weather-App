@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Weather_App
@@ -29,6 +30,7 @@ namespace Weather_App
         public double Uvi { get; set; }
         public long Clouds { get; set; }
         public long Visibility { get; set; }
+        [JsonProperty("wind_speed")]
         public double WindSpeed { get; set; }
         public long WindDeg { get; set; }
         public double WindGust { get; set; }

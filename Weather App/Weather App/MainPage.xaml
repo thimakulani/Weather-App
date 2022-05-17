@@ -87,11 +87,87 @@
                 </Frame>
             </StackLayout>
         </Frame>
+        <StackLayout>
+            <CarouselView EmptyView="No Data" 
+                          HeightRequest="250" 
+                          x:Name="ServiceCategory" 
+                          Loop="False"
+                          PeekAreaInsets="130"
+                          ItemsUpdatingScrollMode="KeepLastItemInView"
+                          BindingContext="{Binding Hourly}"
+                              
+                          >
+                <CarouselView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" 
+                                           Orientation="Horizontal"
+                                           SnapPointsAlignment="Center"
+                                           
+                                           />
+                </CarouselView.ItemsLayout>
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Frame HeightRequest="300" WidthRequest="250" 
+                                    Padding="0"
+                                    HasShadow="True" Margin="3" CornerRadius="7"
+                                    HorizontalOptions="CenterAndExpand">
+                                <Frame.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="CadetBlue" Offset="0.1"/>
+                                        <GradientStop Color="CadetBlue" Offset="1.0"/>
+
+                                    </LinearGradientBrush>
+                                </Frame.Background>
+                                <Grid>
+                                    <Grid>
+                                        <StackLayout>
+                                            
+                                        </StackLayout>
+                                        <Label Text="{Binding Name}" 
+                                                FontSize="12"
+                                                TextColor="White"
+                                                FontAttributes="Bold" Margin="15,5"
+                                                VerticalOptions="EndAndExpand"/>
+
+                                    </Grid>
+                                </Grid>
+                            </Frame>
+                        </StackLayout>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.EmptyViewTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Frame HeightRequest="50" WidthRequest="50" 
+                                    Padding="0"
+                                    HasShadow="True" Margin="3" CornerRadius="7"
+                                    HorizontalOptions="CenterAndExpand">
+                                <Frame.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="CadetBlue" Offset="0.1"/>
+                                        <GradientStop Color="CadetBlue" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Frame.Background>
+                                <StackLayout Grid.Column="3" Orientation="Vertical" Spacing="0" HorizontalOptions="CenterAndExpand">
+                                    <Image Source="cloudy" HeightRequest="25" HorizontalOptions="Center"/>
+                                    <StackLayout Spacing="7" HorizontalOptions="CenterAndExpand">
+                                        <Label Text="%" TextColor="Black" FontSize="14" 
+                                               FontAttributes="Bold" HorizontalOptions="Center"/>
+                                        <Label Text="time" TextColor="Black" FontSize="14" 
+                                               FontAttributes="Bold" HorizontalOptions="Center"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+                    </DataTemplate>
+                </CarouselView.EmptyViewTemplate>
+            </CarouselView>
+        </StackLayout>
         <ctrl:SearchBarControl Text="{Binding SearchInput}" SearchCommand="{Binding BtnSearch}"/>
         
             <CollectionView EmptyView="No Data Found" 
                             SelectionMode="None" 
-                            ItemsSource="{Binding WeatherList}">
+                            ItemsSource="{Binding Daily}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" />
                 </CollectionView.ItemsLayout>
