@@ -14,7 +14,7 @@ namespace Weather_App
         public Current Current { get; set; }
         public List<Current> Hourly { get; set; }
         public List<Daily> Daily { get; set; }
-      
+
     }
 
     public partial class Current

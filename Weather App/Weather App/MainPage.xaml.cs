@@ -10,7 +10,7 @@ namespace Weather_App
             InitializeComponent();
             mainViewModel = new MainViewModel();
             BindingContext = mainViewModel;
-            
+
         }
         protected override void OnAppearing()
         {

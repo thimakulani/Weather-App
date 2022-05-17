@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Weather_App.Service;
@@ -36,7 +33,8 @@ namespace Weather_App.ViewModel
         public string Sunset { get { return sunset; } set { sunset = value; PropertyChanged(this, new PropertyChangedEventArgs("Sunset")); } }
         public string Sunrise { get { return sunrise; } set { sunrise = value; PropertyChanged(this, new PropertyChangedEventArgs("Sunrise")); } }
         public long Pressure { get { return pressure; } set { pressure = value; PropertyChanged(this, new PropertyChangedEventArgs("Pressure")); } }
-        public long Cloudness {
+        public long Cloudness
+        {
             get
             {
                 return cloudness;
@@ -72,21 +70,25 @@ namespace Weather_App.ViewModel
             }
         }
 
-        public string Icon { get { return icon; }
-            set { icon = value; PropertyChanged(this, new PropertyChangedEventArgs("Icon")); } }
+        public string Icon
+        {
+            get { return icon; }
+            set { icon = value; PropertyChanged(this, new PropertyChangedEventArgs("Icon")); }
+        }
         public string Location { get { return location; } set { location = value; PropertyChanged(this, new PropertyChangedEventArgs("Location")); } }
         public long Temperature { get { return temperature; } set { temperature = value; PropertyChanged(this, new PropertyChangedEventArgs("Temperature")); } }
         public string Description { get { return description; } set { description = value; PropertyChanged(this, new PropertyChangedEventArgs("Description")); } }
         public string SearchInput { get { return searchInput; } set { searchInput = value; PropertyChanged(this, new PropertyChangedEventArgs("SearchInput")); } }
-        
+
 
         public ICommand BtnFetchData { get; set; }
         public ICommand BtnSearch { get; set; }
 
         public MainViewModel()
         {
-            
+
             BtnSearch = new Command(SearchLocation);
+            //getting current location
             _ = CurrentLocation();
         }
 
@@ -94,11 +96,13 @@ namespace Weather_App.ViewModel
         private const double kelvin = 273.15;
         public async void LoadData(double latitude, double longitude)
         {
-            
+            //instantiate fetch data class
             FetchData data = new FetchData(latitude, longitude);
             var json = await data.GetWeatherData();
-            if(json != null)
+            //check if json data is returned
+            if (json != null)
             {
+                //fetch weather data and display it on the viewModel attributes
                 var output = Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherModel>(json);
                 Temperature = ((long)(output.Current.Temp - kelvin));
                 Humidity = output.Current.Humidity;
@@ -114,7 +118,7 @@ namespace Weather_App.ViewModel
 
                 Description = output.Current.Weather[0].Description;
 
-
+                //load daily weather for the next 7 days
                 daily.Clear();
                 foreach (var item in output.Daily)
                 {
@@ -125,8 +129,9 @@ namespace Weather_App.ViewModel
                         item.Temp.Min = ((long)(item.Temp.Min - kelvin));
                         daily.Add(item);
                     }
-                   
+
                 }
+                //load hourly weather for current day
                 hourly.Clear();
                 foreach (var item in output.Hourly)
                 {
@@ -134,33 +139,36 @@ namespace Weather_App.ViewModel
                     item.Time = $"{dateTime:HH:mm tt}";
                     item.Temp = ((long)(item.Temp - kelvin));
                     hourly.Add(item);
-                    Console.WriteLine("weeee " + dateTime.TimeOfDay);
                 }
             }
 
         }
+
+        //helper method to convert time stemp to human datetime
         private DateTime GetDateFromeTimeStamp(double time_stamp)
         {
             DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             dt = dt.AddSeconds(time_stamp).ToLocalTime();
             return dt;
         }
+        //helper method to get location
         private async Task CurrentLocation()
         {
             var location = await Geolocation.GetLastKnownLocationAsync();
             var result = await Geocoding.GetPlacemarksAsync(location);
             var addr = result.FirstOrDefault();
-            
-            if(addr !=null)
+
+            if (addr != null)
             {
                 Location = $"{addr.SubLocality}, {addr.CountryCode}";
                 SearchInput = addr.SubLocality;
                 LoadData(addr.Location.Latitude, addr.Location.Longitude);
             }
         }
+        //seach command
         private async void SearchLocation(object obj)
         {
-            if(searchInput != null)
+            if (searchInput != null)
             {
                 try
                 {

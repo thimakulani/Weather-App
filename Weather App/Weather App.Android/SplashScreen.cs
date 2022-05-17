@@ -1,18 +1,11 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Weather_App.Droid
 {
-    [Activity(Label = "Weather App", Icon = "@drawable/app_icon", MainLauncher =true, Theme = "@style/MyTheme.Splash", NoHistory = true)]
+    [Activity(Label = "Weather App", Icon = "@drawable/app_icon", MainLauncher = true, Theme = "@style/MyTheme.Splash", NoHistory = true)]
     public class SplashScreen : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -20,7 +13,7 @@ namespace Weather_App.Droid
             base.OnCreate(savedInstanceState);
 
             // Create your application here
-            
+
         }
         protected override void OnResume()
         {

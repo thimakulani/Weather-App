@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Weather_App.Service
@@ -10,8 +8,9 @@ namespace Weather_App.Service
     {
         private double latitude;
         private double longitude;
+        private string api_key = "0d057eb24363f49cb920c198940ec466";
 
-        public FetchData( double latitude, double longitude)
+        public FetchData(double latitude, double longitude)
         {
             this.latitude = latitude;
             this.longitude = longitude;
@@ -25,15 +24,18 @@ namespace Weather_App.Service
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri("https://api.openweathermap.org/data/2.5/onecall?" +
-                $"lat={latitude}&lon={longitude}&appid=0d057eb24363f49cb920c198940ec466")
-               
+                $"lat={latitude}&lon={longitude}&appid={api_key}")
+
             };
             try
             {
                 using (var response = await client.SendAsync(request))
                 {
                     response.EnsureSuccessStatusCode();
-                    body = await response.Content.ReadAsStringAsync();
+                    if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        body = await response.Content.ReadAsStringAsync();
+                    }
                 }
             }
             catch (Exception ex)
